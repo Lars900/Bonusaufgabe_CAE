@@ -4,9 +4,55 @@
 #include <sstream>
 #include <vector>
 #include <time.h>
+#include <thread>
 #include "Klausur.h"
 
 using namespace std;
+
+void foo(Klausur Klausur2, vector<Aufgabe> Klausur1aufgaben)
+        {
+            cout << "[10] Die Klausur exportieren." << endl << endl;
+
+            string ausgabe1 = Klausur2.getDatum();
+            string ausgabe2 = Klausur2.getTitel();
+            int ausgabe3 = Klausur2.getDauer();
+            cout << "Datum: " << ausgabe1 << endl;
+            cout << "Titel: " << ausgabe2 << endl;
+            cout << "Dauer: " << ausgabe3 << endl << endl; 
+            ausgabe1.erase(0,2);
+
+            string s = "Klausur_export/"+ausgabe1+".tex";
+            cout << s << endl;
+            fstream file;
+            string h = "\\";
+            h.erase(1,1);
+            file.open(s,ios::out);
+        
+            file << "%Datum: " << ausgabe1 << endl;
+            file << "%Titel: " << ausgabe2 << endl;
+            file << "%Dauer: " << ausgabe3 << endl << endl;
+            file << h+"documentclass[11pt,a4paper,oneside]{report}" << endl;
+            file << h+"begin{document}" <<  endl;
+            file << "Datum: " << ausgabe1 << endl;
+            file << "Titel: " << ausgabe2 << endl;
+            file << "Dauer: " << ausgabe3 << endl << endl;
+        
+            for (int i = 0; i < Klausur1aufgaben.size(); i++)
+                {
+                    int ausgabe10 = Klausur1aufgaben[i].getID();
+                    string befehl = h+"input{./Aufgaben/" + std::to_string(ausgabe10) + ".tex}";
+                    file << befehl << endl; 
+                }
+            file << h+"end{document}" <<  endl;
+            string p = Klausur2.getDatum();
+            p.erase(0,2);
+            s = "pdflatex Klausur_export/"+p+".tex";
+            const char * d = s.c_str();
+            system(d);
+
+
+        }
+
 
 int main()
 {
@@ -589,49 +635,12 @@ while (true == true)
     }
     else if (auswahl == 10)
     {
-        cout << "[10] Die Klausur exportieren." << endl << endl;
-
-        string ausgabe1 = Klausur2.getDatum();
-        string ausgabe2 = Klausur2.getTitel();
-        int ausgabe3 = Klausur2.getDauer();
-        cout << "Datum: " << ausgabe1 << endl;
-        cout << "Titel: " << ausgabe2 << endl;
-        cout << "Dauer: " << ausgabe3 << endl << endl; 
-        ausgabe1.erase(0,2);
-
-        string s = "Klausur_export/"+ausgabe1+".tex";
-        cout << s << endl;
-        fstream file;
-        string h = "\\";
-        h.erase(1,1);
-        file.open(s,ios::out);
         
-        file << "%Datum: " << ausgabe1 << endl;
-        file << "%Titel: " << ausgabe2 << endl;
-        file << "%Dauer: " << ausgabe3 << endl << endl;
-        file << h+"documentclass[11pt,a4paper,oneside]{report}" << endl;
-        file << h+"begin{document}" <<  endl;
-        file << "Datum: " << ausgabe1 << endl;
-        file << "Titel: " << ausgabe2 << endl;
-        file << "Dauer: " << ausgabe3 << endl << endl;
-        
-        for (int i = 0; i < Klausur1aufgaben.size(); i++)
-            {
-                int ausgabe10 = Klausur1aufgaben[i].getID();
-                string befehl = h+"input{./Aufgaben/" + std::to_string(ausgabe10) + ".tex}";
-                file << befehl << endl; 
-            }
-        file << h+"end{document}" <<  endl;
-        string p = Klausur2.getDatum();
-        p.erase(0,2);
-        s = "pdflatex Klausur_export/"+p+".tex";
-        const char * d = s.c_str();
-        system(d);
-
+        std::thread thread_object(foo, Klausur2, Klausur1aufgaben);
         cout << "Die Klausur wurde erfolgreich als PDF exportiert. Bitte druecken Sie einen beliebigen Buchstaben und" << endl << 
             "bestaetigen Sie mit der <Enter> Taste um zum Hauptmenue zurueckzugelangen." << endl;
 
-    }
+    }   
     else
     {
         cout << "Ihre Eingabe entsprach keiner Zahl zwischen 1 und 10. Bitte druecken Sie einen beliebigen Buchstaben und" << endl << 
@@ -644,4 +653,3 @@ while (true == true)
 
 };
 }
-
